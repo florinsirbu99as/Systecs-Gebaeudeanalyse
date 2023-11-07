@@ -7,6 +7,7 @@
 import os
 import math
 import time
+import sys
 
 import numpy as np
 import pygame
@@ -81,6 +82,11 @@ def map_value(x, in_min, in_max, out_min, out_max):
 time.sleep(0.1)
 
 while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
     # read the pixels
     try:
         pixels = []
