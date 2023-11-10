@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=Autostart
+Exec=/home/systecs/VSC/Systecs-Gebaeudeanalyse/startup.sh
+Type=Application
