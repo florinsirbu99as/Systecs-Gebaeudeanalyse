@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python /home/systecs/VSC/Systecs-Gebaeudeanalyse/AMG8833_IR_cam-main/detailed.py &
+python ~/VSC/Systecs-Gebaeudeanalyse/RPI/AMG8833_IR_cam-main/detailed.py &
 obs --startstreaming
