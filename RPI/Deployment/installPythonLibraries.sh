@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #write Baudrate settings
-sudo python Scripts/writeBaudrate.py
+sudo python ~/VSC/Systecs-Gebaeudeanalyse/RPI/Deployment/Scripts/writeBaudrate.py
 
 #install matplotlib
 sudo apt install python3-matplotlib
