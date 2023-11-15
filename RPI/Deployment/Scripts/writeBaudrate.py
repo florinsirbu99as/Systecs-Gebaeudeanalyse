@@ -2,7 +2,13 @@ import os
 
 # default path for this file on Raspbian
 dir = "/boot/config.txt"
-dir = "C:/temp/test.txt"
+# Windows
+if os.name == "nt":
+    dir = "C:/temp/test.txt"
+    file = open(dir, mode="w")
+    line = "dtparam=i2c_arm=on"
+    file.write(line)
+
 status = ""
 
 # Check if File exists
@@ -16,7 +22,7 @@ if os.path.exists(dir):
             line = lines[lineIndex]
             if line.find("dtparam=i2c_arm=on") > -1:
                 status = "Line exists."
-                lines[lineIndex] = "dtparam=i2c_arm=on, i2c_arm_baudrate=400000"
+                lines[lineIndex] = "dtparam=i2c_arm=on, i2c_arm_baudrate=400000\n"
                 break
         if status == "Line exists.":
             file.seek(0)
