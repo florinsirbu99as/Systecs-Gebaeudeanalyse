@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#write Baudrate settings
+sudo python /Scripts/writeBaudrate.py
+
 #install matplotlib
 sudo apt install python3-matplotlib
 
