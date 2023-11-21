@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="images/logo_systecs.svg">
+  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 </head>
 <body>
     <nav class="border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
@@ -52,11 +53,22 @@
                 </div>
                 <div class="w-full">
                     <div class="flex flex-col items-center justify-center w-full h-96 lg:h-full gap-3 bg-gray-200 rounded-3xl shadow-main">
-                        <p>Video</p>
+                        <video data-dashjs-player autoplay controls width="100%" height="100%"></video>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const manifestUrl = "https://systecmediaservice-gewc1.streaming.media.azure.net/c3812d4f-9545-4e1d-9dcb-b087f2418607/edea6743-a1d6-4163-b3ce-96bc4fc2df4e.ism/manifest(format=mpd-time-cmaf)";
+        
+        // Create a dash.js player
+        const player = dashjs.MediaPlayer().create();
+    
+        // Set the DASH manifest URL
+        player.initialize(document.querySelector("video"), manifestUrl, true);
+    </script>
+
 </body>
 </html>
