@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo_systecs.svg') }}">
+  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+</head>
+<body>
+    <nav class="border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+        <div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+            <a href="#" class="flex items-center">
+                <img src="{{ url_for('static', filename='img/logo_systecs.svg') }}" class="h-8 mr-3" alt="Flowbite Logo" />
+            </a>
+            <button data-collapse-toggle="navbar-hamburger" type="button" class="inline-flex items-center justify-center p-2 w-10 h-10 ml-3 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                <a href="{{ url_for('index') }}">
+                    <button type="button" class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center">HOME</button>
+                </a>
+            </button>
+        </div>
+    </nav>  
+    <div class="flex flex-col items-center gap-8 mt-10">
+        <div class="container flex flex-col mx-auto bg-white ">
+            <div class="w-full flex gap-14 px-6 flex-col-reverse lg:flex-row">
+                <div class="w-full">
+                    <div class="flex flex-col items-center justify-center w-full h-96 lg:h-full gap-3 bg-gray-200 rounded-3xl shadow-main">
+                        <img src="{{ url_for('video_feed') }}" class="w-full h-full rounded-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
