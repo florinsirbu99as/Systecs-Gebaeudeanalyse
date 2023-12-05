@@ -6,6 +6,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="{{ url_for('static', filename='img/logo_systecs.svg') }}">
   <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+<!-- Add this in the head section of your HTML file -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+
 </head>
 <body>
     <nav class="border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
@@ -20,16 +24,89 @@
             </button>
         </div>
     </nav>  
-    <div class="flex flex-col items-center gap-8 mt-10">
-        <div class="container flex flex-col mx-auto bg-white ">
-            <div class="w-full flex gap-14 px-6 flex-col-reverse lg:flex-row">
-                <div class="w-full">
-                    <div class="flex flex-col items-center justify-center w-full h-96 lg:h-full gap-3 bg-gray-200 rounded-3xl shadow-main">
-                        <img src="{{ url_for('video_feed') }}" class="w-full h-full rounded-lg">
+    <div class="flex flex-col items-center mt-14">
+        <div class="container flex flex-col mx-auto bg-white">
+            <div class="w-full flex gap-14 px-6 flex-col-reverse">
+                <div class="w-full flex flex-row justify-center items-center">
+                    <div class="flex flex-col items-center justify-center w-fit h-fit rotate-90 rounded-3xl shadow-main">
+                        <canvas id="heatmapCanvas" width="320" height="240" class="rounded-3xl"></canvas>
                     </div>
+                    <div id="legend" style="margin-left: -75px;"></div>
                 </div>
             </div>
         </div>
-    </div>
+    </div>    
+    <script>
+        var temperatureData = {{ temperature_data | tojson | safe }};
+        var minValue = Math.min(...temperatureData);
+        var maxValue = Math.max(...temperatureData);
+        var colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([minValue, maxValue]);
+        var canvas = document.getElementById('heatmapCanvas');
+        var ctx = canvas.getContext('2d');
+        var squareSize = 10;
+        var canvasWidthInSquares = canvas.width / squareSize;
+        var canvasHeightInSquares = canvas.height / squareSize;
+
+        function drawHeatmap() {
+    for (var i = 0; i < canvasWidthInSquares; i++) {
+        for (var j = 0; j < canvasHeightInSquares; j++) {
+            var dataIndex = i + j * canvasWidthInSquares;
+            var value = temperatureData[dataIndex];
+
+            // Farbe basierend auf dem Wert
+            var color = colorScale(value);
+
+            // Quadrat zeichnen
+            ctx.fillStyle = color;
+            
+            // Adjust the x and y positions to fill the full width of the canvas
+            ctx.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
+        }
+    }
+}
+        
+function drawLegend() {
+    var legendCanvas = d3.select("#legend")
+        .append("svg")
+        .attr("height", 240)
+        .attr("width", 110);
+
+    var legendScale = d3.scaleLinear()
+        .domain([minValue, maxValue])
+        .range([240, 0]);
+
+    var legendAxis = d3.axisRight(legendScale);
+
+    legendCanvas.append("g")
+        .attr("transform", "translate(0,0)")
+        .call(legendAxis);
+
+    var colorLegend = legendCanvas.append("g")
+        .attr("transform", "translate(25,0)");
+
+    var colorRange = d3.range(minValue, maxValue + (maxValue - minValue) / 10, (maxValue - minValue) / 10);
+
+    colorLegend.selectAll("rect")
+        .data(colorRange)
+        .enter().append("rect")
+        .attr("height", 20)
+        .attr("width", 50)
+        .attr("x", 0)
+        .attr("y", function(d) { return legendScale(d); })
+        .attr("fill", function(d) { return colorScale(d); });
+
+    // Temperaturwerte auf der Skala anzeigen
+    colorLegend.selectAll("text")
+        .data(colorRange)
+        .enter().append("text")
+        .attr("x", 50)  // Adjust the x position to create space between rect and text
+        .attr("y", function(d) { return legendScale(d) + 15; })
+        .text(function(d) { return d.toFixed(1); });
+}
+
+
+        drawHeatmap();
+        drawLegend();
+    </script>
 </body>
 </html>
