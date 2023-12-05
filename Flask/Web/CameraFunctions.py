@@ -18,12 +18,12 @@ def get_sensor_data():
 
     frame = np.zeros((24 * 32,))
 
-    while True:
+    while(True):
         try:
             mlx.getFrame(frame)
             # You can manipulate 'frame' here if needed before returning
             return jsonify(
                 sensor_data=frame.tolist()
             )  # Convert frame to JSON and return it
-        except ValueError:
+        except Exception:
             continue
