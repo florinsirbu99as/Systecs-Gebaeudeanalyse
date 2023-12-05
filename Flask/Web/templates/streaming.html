@@ -62,93 +62,100 @@
       </div>
     </div>
     <script>
-              var temperatureData = {{ temperature_data | tojson | safe }};
-              var minValue = Math.min(...temperatureData);
-              var maxValue = Math.max(...temperatureData);
-              var colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([minValue, maxValue]);
-              var canvas = document.getElementById('heatmapCanvas');
-              var ctx = canvas.getContext('2d');
-              var squareSize = 10;
-              var canvasWidthInSquares = canvas.width / squareSize;
-              var canvasHeightInSquares = canvas.height / squareSize;
+      var temperatureData = {{ temperature_data | tojson | safe }};
+      var minValue = Math.min(...temperatureData);
+      var maxValue = Math.max(...temperatureData);
+      var colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([minValue, maxValue]);
+      var canvas = document.getElementById('heatmapCanvas');
+      var ctx = canvas.getContext('2d');
+      var squareSize = 10;
+      var canvasWidthInSquares = canvas.width / squareSize;
+      var canvasHeightInSquares = canvas.height / squareSize;
 
-              function drawHeatmap() {
-          for (var i = 0; i < canvasWidthInSquares; i++) {
-              for (var j = 0; j < canvasHeightInSquares; j++) {
-                  var dataIndex = i + j * canvasWidthInSquares;
-                  var value = temperatureData[dataIndex];
+      function drawHeatmap() {
+        minValue = Math.min(...temperatureData);
+        maxValue = Math.max(...temperatureData);
+        drawLegend();
+        for (var i = 0; i < canvasWidthInSquares; i++) {
+          for (var j = 0; j < canvasHeightInSquares; j++) {
+            var dataIndex = i + j * canvasWidthInSquares;
+            var value = temperatureData[dataIndex];
 
-                  // Farbe basierend auf dem Wert
-                  var color = colorScale(value);
+            // Farbe basierend auf dem Wert
+            var color = colorScale(value);
 
-                  // Quadrat zeichnen
-                  ctx.fillStyle = color;
+            // Quadrat zeichnen
+            ctx.fillStyle = color;
 
-                  // Adjust the x and y positions to fill the full width of the canvas
-                  ctx.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
-              }
+            // Adjust the x and y positions to fill the full width of the canvas
+            ctx.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           }
+        }
       }
 
       function drawLegend() {
-          var legendCanvas = d3.select("#legend")
-              .append("svg")
-              .attr("height", 240)
-              .attr("width", 110);
+        //Clear Canvas
+        var legendCanvas = d3.select('#legend')
+          .selectAll('*')
+          .remove();
 
-          var legendScale = d3.scaleLinear()
-              .domain([minValue, maxValue])
-              .range([240, 0]);
+        var legendCanvas = d3.select("#legend")
+          .append("svg")
+          .attr("height", 240)
+          .attr("width", 110);
 
-          var legendAxis = d3.axisRight(legendScale);
+        var legendScale = d3.scaleLinear()
+          .domain([minValue, maxValue])
+          .range([240, 0]);
 
-          legendCanvas.append("g")
-              .attr("transform", "translate(0,0)")
-              .call(legendAxis);
+        var legendAxis = d3.axisRight(legendScale);
 
-          var colorLegend = legendCanvas.append("g")
-              .attr("transform", "translate(25,0)");
+        legendCanvas.append("g")
+          .attr("transform", "translate(0,0)")
+          .call(legendAxis);
 
-          var colorRange = d3.range(minValue, maxValue + (maxValue - minValue) / 10, (maxValue - minValue) / 10);
+        var colorLegend = legendCanvas.append("g")
+          .attr("transform", "translate(25,0)");
 
-          colorLegend.selectAll("rect")
-              .data(colorRange)
-              .enter().append("rect")
-              .attr("height", 20)
-              .attr("width", 50)
-              .attr("x", 0)
-              .attr("y", function(d) { return legendScale(d); })
-              .attr("fill", function(d) { return colorScale(d); });
+        var colorRange = d3.range(minValue, maxValue + (maxValue - minValue) / 10, (maxValue - minValue) / 10);
 
-          // Temperaturwerte auf der Skala anzeigen
-          colorLegend.selectAll("text")
-              .data(colorRange)
-              .enter().append("text")
-              .attr("x", 50)  // Adjust the x position to create space between rect and text
-              .attr("y", function(d) { return legendScale(d) + 15; })
-              .text(function(d) { return d.toFixed(1); });
+        colorLegend.selectAll("rect")
+          .data(colorRange)
+          .enter().append("rect")
+          .attr("height", 20)
+          .attr("width", 50)
+          .attr("x", 0)
+          .attr("y", function(d) { return legendScale(d); })
+          .attr("fill", function(d) { return colorScale(d); });
+
+        // Temperaturwerte auf der Skala anzeigen
+        colorLegend.selectAll("text")
+          .data(colorRange)
+          .enter().append("text")
+          .attr("x", 50)  // Adjust the x position to create space between rect and text
+          .attr("y", function(d) { return legendScale(d) + 15; })
+          .text(function(d) { return d.toFixed(1); });
       }
 
 
       function updateHeatmap() {
-          fetch('/get_data') // Route to retrieve updated temperature data
-              .then(response => response.json())
-              .then(data => {
-                  // Update temperatureData with the new data received
-                  temperatureData = data.sensor_data;
-                  console.log(temperatureData);
+        fetch('/get_data') // Route to retrieve updated temperature data
+          .then(response => response.json())
+          .then(data => {
+            // Update temperatureData with the new data received
+            temperatureData = data.sensor_data;
+            console.log(temperatureData);
 
-                  // Redraw the heatmap with the updated data
-                  drawHeatmap();
-                  // Optionally, update the legend as well
-              })
-              .catch(error => {
-                  console.error('Error fetching data:', error);
-              });
-      }
+            // Redraw the heatmap with the updated data
+            drawHeatmap();
+            // Optionally, update the legend as well
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+          });
+        }
       console.log(temperatureData);
       drawHeatmap();
-      drawLegend();
       // Update the heatmap every second
       setInterval(updateHeatmap, 1000); // Adjust the interval as needed
     </script>
