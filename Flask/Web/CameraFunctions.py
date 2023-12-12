@@ -5,10 +5,12 @@ from flask import jsonify
 from time import sleep
 
 import json
+import json
 import adafruit_mlx90640
 import requests
 
 # file in /home/systecs/.local/lib/python3.11/site-packages/adafruit_mlx90640.py
+
 
 # Function for Raspberry Pi hosted Flask Server
 def get_sensor_data():
@@ -18,7 +20,7 @@ def get_sensor_data():
 
     frame = np.zeros((24 * 32,))
 
-    while(True):
+    while True:
         try:
             mlx.getFrame(frame)
             # Convert frame to JSON and return it
