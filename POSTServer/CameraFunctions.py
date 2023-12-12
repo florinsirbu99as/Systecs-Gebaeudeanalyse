@@ -26,28 +26,3 @@ def get_sensor_data():
             )  # Convert frame to JSON and return it
         except Exception:
             continue
-
-# Function for external hosted Server
-def Post_Data():
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=400000)
-    mlx = adafruit_mlx90640.MLX90640(i2c)
-    mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_4_HZ
-
-    frame = np.zeros((24 * 32,))
-
-    while(True):
-        try:
-            print("try post")
-            #mlx.getFrame(frame)
-            # You can manipulate 'frame' here if needed before returning
-            #postObject =jsonify(
-                #sensor_data=frame.tolist()
-            #)  # Convert frame to JSON and return it
-            url = 'https://httpbin.org/post'
-            #postRequest = requests.post(url, json = postObject)
-            print("Result",postRequest)
-            sleep(1000)
-        except Exception:
-            continue
-
-Post_Data()

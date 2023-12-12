@@ -19,7 +19,6 @@ def Post_Data():
 
     try:
         mlx.getFrame(frame)
-
         url = "https://5000-debug-florinsirbu-systecsgeba-dteektu0cvc.ws-eu106.gitpod.io/post_data"
         postRequest = requests.post(url, json=json.dumps(frame.tolist()))
         if postRequest.status_code != 200:

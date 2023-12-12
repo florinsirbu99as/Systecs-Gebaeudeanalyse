@@ -45,15 +45,11 @@ def video_feed():
 # POST endpoint
 @app.route('/post_data', methods=['POST'])
 def post_data():
-    # Get data from the POST request
-    data = request.json  # Assuming JSON data is sent in the POST request
-    # Process the data or perform actions based on the POST request
-    temperature_data = data
     with open('POSTServer/static/current_frame.json','w') as current_frame:
-        current_frame.write(data)
+        current_frame.write(request.json )
 
     # Return a response
-    return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
+    #return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
 
 @app.route('/get_current_frame')
 def get_current_frame():
