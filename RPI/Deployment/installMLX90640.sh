@@ -19,5 +19,6 @@ source env/bin/activate
 
 cd ~
 pip3 install pithermalcam --verbose
+pip install Flask
 deactivate
 #source env/bin/activate
