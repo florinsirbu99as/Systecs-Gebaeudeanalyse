@@ -128,7 +128,7 @@
           .attr("fill", function(d) { return colorScale(d); });
 
         // Temperaturwerte auf der Skala anzeigen
-        colorLegend.selectAll("text") ^
+        colorLegend.selectAll("text")
           .data(colorRange)
           .enter().append("text")
           .attr("x", 30)  // Adjust the x position to create space between rect and text
