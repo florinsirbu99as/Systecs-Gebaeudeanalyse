@@ -1,5 +1,6 @@
-from flask import Flask, render_template, Response, url_for, jsonify
+from flask import Flask, render_template, Response, url_for, jsonify, request
 import cv2
+import requests
 #from CameraFunctions import get_sensor_data
 from StartingFrame import generate_starting_frame
 
@@ -41,6 +42,25 @@ def video_feed():
 # def get_data():
 #     return get_sensor_data()
 
+# POST endpoint
+@app.route('/post_data', methods=['POST'])
+def post_data():
+    # Get data from the POST request
+    data = request.json  # Assuming JSON data is sent in the POST request
+    # Process the data or perform actions based on the POST request
+    temperature_data = data
+    with open('POSTServer/static/current_frame.json','w') as current_frame:
+        current_frame.write(data)
+
+    # Return a response
+    return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
+
+@app.route('/get_current_frame')
+def get_current_frame():
+    return open('POSTServer/static/current_frame.json','r') 
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

@@ -1,0 +1,9 @@
+image:
+  file: .gitpod.Dockerfile
+
+# List of initial commands to run when the workspace is started
+# You may need to add other commands depending on your specific project setup
+tasks:
+  - command: |
+      sudo apt-get update
+      sudo apt-get install -y libsm6 libxext6 libxrender-dev
