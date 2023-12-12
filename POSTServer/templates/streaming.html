@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='img/logo_systecs.svg') }}"
+    />
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <!-- Add this in the head section of your HTML file -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <nav
+      class="border-gray-200 bg-gray-50"
+    >
+      <div
+        class="max-w-screen-xl flex items-center justify-between mx-auto p-4"
+      >
+        <a href="#" class="flex items-center">
+          <img
+            src="{{ url_for('static', filename='img/logo_systecs.svg') }}"
+            class="h-8 mr-3"
+            alt="Flowbite Logo"
+          />
+        </a>
+        <button
+          data-collapse-toggle="navbar-hamburger"
+          type="button"
+          class="inline-flex items-center justify-center p-2 w-10 h-10 ml-3 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+        >
+          <a href="{{ url_for('index') }}">
+            <button
+              type="button"
+              class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center"
+            >
+              HOME
+            </button>
+          </a>
+        </button>
+      </div>
+    </nav>
+    <div class="flex flex-col items-center mt-14">
+          <div class="flex flex-row justify-center items-start h-[70vh]">
+            <div class="rotate-90 mt-[40px]">
+              <canvas
+                id="heatmapCanvas"
+                width="320"
+                height="240"
+                class="rounded-3xl h-[190px] min-[450px]:h-[250px] w-auto sm:h-[400px] "
+              ></canvas>
+            </div>
+            <div id="legend" class="w-[150px] ml-[-25px]"></div>
+      </div>
+    </div>
+    <style>
+        .legend-svg {
+            width: 100px;
+            height: 300px;
+        }
+    </style>
+    <script>
+      var temperatureData = {{ temperature_data | tojson | safe }};
+      var minValue = Math.min(...temperatureData);
+      var maxValue = Math.max(...temperatureData);
+      var colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([minValue, maxValue]);
+      var canvas = document.getElementById('heatmapCanvas');
+      var ctx = canvas.getContext('2d');
+      var squareSize = 10;
+      var canvasWidthInSquares = canvas.width / squareSize;
+      var canvasHeightInSquares = canvas.height / squareSize;
+
+      function drawHeatmap() {
+        minValue = Math.min(...temperatureData);
+        maxValue = Math.max(...temperatureData);
+        drawLegend();
+        for (var i = 0; i < canvasWidthInSquares; i++) {
+          for (var j = 0; j < canvasHeightInSquares; j++) {
+            var dataIndex = i + j * canvasWidthInSquares;
+            var value = temperatureData[dataIndex];
+
+            // Farbe basierend auf dem Wert
+            var color = colorScale(value);
+
+            // Quadrat zeichnen
+            ctx.fillStyle = color;
+
+            // Adjust the x and y positions to fill the full width of the canvas
+            ctx.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
+          }
+        }
+      }
+
+      function drawLegend() {
+        //Clear Canvas
+        var legendCanvas = d3.select('#legend')
+          .selectAll('*')
+          .remove();
+
+        var legendCanvas = d3.select("#legend")
+          .append("svg")
+          .attr("class", "legend-svg");
+
+        var legendScale = d3.scaleLinear()
+          .domain([minValue, maxValue])
+          .range([240, 0]);
+
+        var legendAxis = d3.axisRight(legendScale);
+
+        legendCanvas.append("g")
+          .attr("transform", "translate(0,0)")
+          .call(legendAxis);
+
+        var colorLegend = legendCanvas.append("g")
+          .attr("transform", "translate(25,0)");
+
+        var colorRange = d3.range(minValue, maxValue + (maxValue - minValue) / 10, (maxValue - minValue) / 10);
+
+        colorLegend.selectAll("rect")
+          .data(colorRange)
+          .enter().append("rect")
+          .attr("height", 20)
+          .attr("width", 30)
+          .attr("x", 0)
+          .attr("y", function(d) { return legendScale(d); })
+          .attr("fill", function(d) { return colorScale(d); });
+
+        // Temperaturwerte auf der Skala anzeigen
+        colorLegend.selectAll("text")
+          .data(colorRange)
+          .enter().append("text")
+          .attr("x", 30)  // Adjust the x position to create space between rect and text
+          .attr("y", function(d) { return legendScale(d) + 15; })
+          .text(function(d) { return d.toFixed(1); });
+      }
+
+
+      function updateHeatmap() {
+        fetch('/get_data') // Route to retrieve updated temperature data
+          .then(response => response.json())
+          .then(data => {
+            // Update temperatureData with the new data received
+            temperatureData = data.sensor_data;
+            console.log(temperatureData);
+
+            // Redraw the heatmap with the updated data
+            drawHeatmap();
+            // Optionally, update the legend as well
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+          });
+        }
+
+        function updateHeatmapOnExternalServer() {
+            temperatureData = fetch('/get_current_frame')  
+              .then(response => response.json())
+              .then(data => {
+                console.log(data)
+                temperatureData = data;
+                // Redraw the heatmap with the updated data
+                drawHeatmap();             
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+        }
+        
+      console.log(temperatureData);
+      drawHeatmap();
+      // Update the heatmap every second
+      // setInterval(updateHeatmap, 1000); // Adjust the interval as needed
+      setInterval(updateHeatmapOnExternalServer, 100); // Adjust the interval as needed
+    </script>
+  </body>
+</html>
