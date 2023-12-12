@@ -142,7 +142,9 @@
           .then(response => response.json())
           .then(data => {
             // Update temperatureData with the new data received
-            temperatureData = data;
+            temperatureData = data.sensor_data;
+            console.log(temperatureData);
+
             // Redraw the heatmap with the updated data
             drawHeatmap();
             // Optionally, update the legend as well
@@ -150,12 +152,27 @@
           .catch(error => {
             console.error('Error fetching data:', error);
           });
-      }
+        }
+
+        function updateHeatmapOnExternalServer() {
+            temperatureData = fetch('/get_current_frame')  
+              .then(response => response.json())
+              .then(data => {
+                console.log(data)
+                temperatureData = data;
+                // Redraw the heatmap with the updated data
+                drawHeatmap();             
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+        }
+        
       console.log(temperatureData);
       drawHeatmap();
-      // updateHeatmap();
-      // Parameter in milliseconds
-      setInterval(updateHeatmap, 500); // Adjust the interval as needed
+      // Update the heatmap every second
+      // setInterval(updateHeatmap, 1000); // Adjust the interval as needed
+      setInterval(updateHeatmapOnExternalServer, 100); // Adjust the interval as needed
     </script>
   </body>
 </html>

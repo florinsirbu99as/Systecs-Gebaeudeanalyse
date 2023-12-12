@@ -1,8 +1,7 @@
-from flask import Flask, render_template, Response
-from CameraFunctions import get_sensor_data
-from StartingFrame import generate_starting_frame
-
+from flask import Flask, render_template, Response, url_for, jsonify, request
 import cv2
+
+from StartingFrame import generate_starting_frame
 
 app = Flask(__name__)
 
@@ -40,10 +39,29 @@ def video_feed():
     )
 
 
-@app.route("/get_data")
-def get_data():
-    return get_sensor_data()
+# @app.route("/get_data")
+# def get_data():
+#     return get_sensor_data()
 
+
+# POST endpoint
+@app.route("/post_data", methods=["POST"])
+def post_data():
+    with open("POSTServer/static/current_frame.json", "w") as current_frame:
+        current_frame.write(request.json)
+
+    # Return a response
+    # return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
+    return "OK",200
+
+
+@app.route("/get_current_frame")
+def get_current_frame():
+    return open("POSTServer/static/current_frame.json", "r")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
