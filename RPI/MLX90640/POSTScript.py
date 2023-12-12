@@ -23,8 +23,10 @@ def Post_Data():
         postRequest = requests.post(url, json=json.dumps(frame.tolist()))
         if postRequest.status_code != 200:
             print(postRequest.status_code, "Not Ok")
-    except Exception:
-        print("ERROR: Failed to get Frame")
+        else:
+            print("OK")
+    except Exception as ex:
+        print("ERROR: Failed to get Frame\n",ex)
 
 
 while True:
