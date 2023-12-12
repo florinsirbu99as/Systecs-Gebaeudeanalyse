@@ -52,6 +52,7 @@ def post_data():
 
     # Return a response
     # return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
+    return "OK",200
 
 
 @app.route("/get_current_frame")
