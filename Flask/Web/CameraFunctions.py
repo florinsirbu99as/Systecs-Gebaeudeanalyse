@@ -4,6 +4,7 @@ import time, board, busio
 from flask import jsonify
 from time import sleep
 
+import json
 import adafruit_mlx90640
 import requests
 
@@ -20,34 +21,7 @@ def get_sensor_data():
     while(True):
         try:
             mlx.getFrame(frame)
-            # You can manipulate 'frame' here if needed before returning
-            return jsonify(
-                sensor_data=frame.tolist()
-            )  # Convert frame to JSON and return it
+            # Convert frame to JSON and return it
+            return json.dumps(frame.tolist())
         except Exception:
             continue
-
-# Function for external hosted Server
-def Post_Data():
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=400000)
-    mlx = adafruit_mlx90640.MLX90640(i2c)
-    mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_4_HZ
-
-    frame = np.zeros((24 * 32,))
-
-    while(True):
-        try:
-            print("try post")
-            #mlx.getFrame(frame)
-            # You can manipulate 'frame' here if needed before returning
-            #postObject =jsonify(
-                #sensor_data=frame.tolist()
-            #)  # Convert frame to JSON and return it
-            url = 'https://httpbin.org/post'
-            #postRequest = requests.post(url, json = postObject)
-            print("Result",postRequest)
-            sleep(1000)
-        except Exception:
-            continue
-
-Post_Data()
