@@ -1,9 +1,11 @@
-from flask import Flask, render_template, Response, url_for, jsonify
-import cv2
-#from CameraFunctions import get_sensor_data
+from flask import Flask, render_template, Response
+from CameraFunctions import get_sensor_data
 from StartingFrame import generate_starting_frame
 
+import cv2
+
 app = Flask(__name__)
+
 
 def generate_frames():
     cap = cv2.VideoCapture(0)  # Change this to your screen capture device index
@@ -37,9 +39,10 @@ def video_feed():
         generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
-# @app.route("/get_data")
-# def get_data():
-#     return get_sensor_data()
+
+@app.route("/get_data")
+def get_data():
+    return get_sensor_data()
 
 
 if __name__ == "__main__":
