@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, url_for, jsonify, request
-import cv2, os
+import cv2, os, json
 
 from StartingFrame import generate_starting_frame
 
@@ -39,57 +39,37 @@ def video_feed():
     )
 
 
-# @app.route("/get_data")
-# def get_data():
-#     return get_sensor_data()
-
-
-# POST endpoint
-@app.route("/post_data", methods=["POST"])
-def post_data():
-    with open("POSTServer/static/current_frame.json", "w") as current_frame:
-        current_frame.write(request.json)
-
-    return "OK", 200
-
-
-@app.route("/get_current_frame")
-def get_current_frame():
-    return open("POSTServer/static/current_frame.json", "r")
-
-
 # Video Frame Data Endpoint
 @app.route("/data", methods=["POST", "GET"])
 def data():
     if request.method == "POST":
         # Handle POST request
         data = request.json
-        if "name" in data and "frame" in data:
+        if "name" in data and "frame_data" in data:
             try:
                 with open(
-                    "POSTServer/static/" + data["name"] + ".json", "w"
+                    "POSTServer/framedata/" + data["name"] + ".json", "w"
                 ) as current_frame:
-                    current_frame.write(data["frame"])
+                    current_frame.write(data["frame_data"])
                 return "OK", 200
             except IOError as e:
                 return f"Error: {e}", 500
     elif request.method == "GET":
-        frames_directory = "POSTServer/static/"
-        frames = {}
+        frames_directory = "POSTServer/framedata/"
+        frames = []
         for file in os.scandir(frames_directory):
-            if file.is_file() and file.name.endswith(
-                ".json"
-            ):  # Process only JSON files
+            if file.is_file() and file.name.endswith(".json"):  # Process only JSON files
                 try:
                     with open(file.path, "r") as file_content:
-                        frames[file.name] = file_content.read()
+                        frame_name = file.name.split('.')[0]
+                        frame = {}
+                        frame["name"] = frame_name
+                        frame["frame_data"] = json.loads(file_content.read())
+                        frames.append(frame)
                 except Exception as e:
                     frames[file.name] = f"Error reading file: {str(e)}"
-        return jsonify(frames), 200
+        return frames, 200
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
