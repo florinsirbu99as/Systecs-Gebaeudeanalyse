@@ -60,7 +60,7 @@ def get_current_frame():
 
 # Video Frame Data Endpoint
 @app.route("/data", methods=["POST", "GET"])
-def post_data():
+def data():
     if request.method == "POST":
         # Handle POST request
         data = request.json
