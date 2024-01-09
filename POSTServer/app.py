@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, url_for, jsonify, request
-import cv2
+import cv2, os
 
 from StartingFrame import generate_starting_frame
 
@@ -50,14 +50,42 @@ def post_data():
     with open("POSTServer/static/current_frame.json", "w") as current_frame:
         current_frame.write(request.json)
 
-    # Return a response
-    # return jsonify({'message': f'Received value: {data}'}), 200  # Send back a JSON response
-    return "OK",200
+    return "OK", 200
 
 
 @app.route("/get_current_frame")
 def get_current_frame():
     return open("POSTServer/static/current_frame.json", "r")
+
+
+# Video Frame Data Endpoint
+@app.route("/data", methods=["POST", "GET"])
+def post_data():
+    if request.method == "POST":
+        # Handle POST request
+        data = request.json
+        if "name" in data and "frame" in data:
+            try:
+                with open(
+                    "POSTServer/static/" + data["name"] + ".json", "w"
+                ) as current_frame:
+                    current_frame.write(data["frame"])
+                return "OK", 200
+            except IOError as e:
+                return f"Error: {e}", 500
+    elif request.method == "GET":
+        frames_directory = "POSTServer/static/"
+        frames = {}
+        for file in os.scandir(frames_directory):
+            if file.is_file() and file.name.endswith(
+                ".json"
+            ):  # Process only JSON files
+                try:
+                    with open(file.path, "r") as file_content:
+                        frames[file.name] = file_content.read()
+                except Exception as e:
+                    frames[file.name] = f"Error reading file: {str(e)}"
+        return jsonify(frames), 200
 
 
 if __name__ == "__main__":

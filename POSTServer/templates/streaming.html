@@ -155,7 +155,7 @@
         }
 
         function updateHeatmapOnExternalServer() {
-            temperatureData = fetch('/get_current_frame')  
+            temperatureData = fetch('/data')  
               .then(response => response.json())
               .then(data => {
                 console.log(data)
