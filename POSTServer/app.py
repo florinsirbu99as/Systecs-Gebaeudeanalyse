@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, url_for, jsonify, request
-import cv2, os, json
+import cv2, os, json,shutil
 
 from StartingFrame import generate_starting_frame
 
@@ -71,5 +71,19 @@ def data():
         return frames, 200
 
 
+def copy_Testdata(source_directory, destination_directory):
+    for file_name in os.listdir(source_directory):
+        file_path = os.path.join(source_directory, file_name)
+        if os.path.isfile(file_path) and file_name.endswith('.json'):
+            # Copy JSON files to the destination directory
+            shutil.copy(file_path, os.path.join(destination_directory, file_name))
+    return
+
 if __name__ == "__main__":
+    frames_directory = "POSTServer/framedata/"
+    if not os.path.exists(frames_directory):
+        os.mkdir(frames_directory)
+    copy_Testdata("POSTServer/testFrames/","POSTServer/framedata/")
     app.run(host="0.0.0.0", debug=True)
+
+
