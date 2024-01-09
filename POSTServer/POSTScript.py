@@ -21,7 +21,7 @@ def Post_Data():
         mlx.getFrame(frame)
         url = "https://5000-florinsirbu-systecsgeba-gksmt1k8cfn.ws-eu107.gitpod.io/data"
         postRequest = requests.post(
-            url, json={"name": "Raspberry 1", "frame": frame.tolist()}
+            url, json={"name": "Raspberry1", "frame_data": str(frame.tolist())}
         )
         if postRequest.status_code != 200:
             print(postRequest.status_code, "Not Ok")
