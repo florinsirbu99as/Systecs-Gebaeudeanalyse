@@ -159,7 +159,8 @@
               .then(response => response.json())
               .then(data => {
                 console.log(data)
-                temperatureData = data;
+                temperatureData = data[0]["frame_data"];
+                console.log(temperatureData);
                 // Redraw the heatmap with the updated data
                 drawHeatmap();             
               })
@@ -172,7 +173,7 @@
       drawHeatmap();
       // Update the heatmap every second
       // setInterval(updateHeatmap, 1000); // Adjust the interval as needed
-      setInterval(updateHeatmapOnExternalServer, 100); // Adjust the interval as needed
+      setInterval(updateHeatmapOnExternalServer, 1000); // Adjust the interval as needed
     </script>
   </body>
 </html>
