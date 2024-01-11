@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link
+      rel="icon"
+      href="{{ url_for('static', filename='img/logo_systecs.svg') }}"
+    />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+</head>
+<body>
+
+<nav class="border-gray-200 bg-gray-50">
+    <div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+    <a href="#" class="flex items-center">
+        <img
+        src="{{ url_for('static', filename='img/logo_systecs.svg') }}"
+        class="h-8 mr-3"
+        alt="Flowbite Logo"
+        />
+    </a>
+    <button
+        data-collapse-toggle="navbar-hamburger"
+        type="button"
+        class="inline-flex items-center justify-center p-2 w-10 h-10 ml-3 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+        <a href="{{ url_for('index') }}">
+        <button
+            type="button"
+            class="px-6 py-3.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center">
+            HOME
+        </button>
+        </a>
+    </button>
+    </div>
+</nav>
+<div style="justify-content: center;display: flex;"><label>Feste Temperaturwerte </label><input type="checkbox" name="fixedTemp" onchange="setFixedTemp()"></div>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+<div class="space-y-4 w-11/12 h-screen" id="Viewer">
+  <!-- <div id="Tab1" class="tabcontent bg-white p-6 rounded-lg shadow-md h-3/4 mt-4">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Kamera 1</h3>
+  </div>
+
+  <div id="Tab2" class="tabcontent hidden bg-white p-6 rounded-lg shadow-md h-3/4 mt-10">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Kamera 2</h3>
+  </div>
+
+  <div id="Tab3" class="tabcontent hidden bg-white p-6 rounded-lg shadow-md h-3/4 mt-10">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Kamera 3</h3>
+  </div>
+
+  <div id="Tab4" class="tabcontent hidden bg-white p-6 rounded-lg shadow-md h-3/4 mt-10">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Kamera 4</h3>
+  </div>
+
+  <div id="Tab5" class="tabcontent hidden bg-white p-6 rounded-lg shadow-md h-3/4 mt-10">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Kamera 5</h3>
+  </div>
+
+  <div class="tab flex justify-center space-x-4">
+    <button class="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" onclick="openTab(event, 'Tab1')">Kamera 1</button>
+    <button class="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" onclick="openTab(event, 'Tab2')">Kamera 2</button>
+    <button class="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" onclick="openTab(event, 'Tab3')">Kamera 3</button>
+    <button class="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" onclick="openTab(event, 'Tab4')">Kamera 4</button>
+    <button class="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" onclick="openTab(event, 'Tab5')">Kamera 5</button>
+  </div> -->
+</div>
+</div>
+<script>
+        var minValue = 0;
+        var maxValue = 0
+  var fixedTemp = false
+var selection = ""
+var temperatureData = {{ temperature_data | tojson | safe }};
+console.log(temperatureData);
+
+async function updateViewer() {
+  try {
+    const response = await fetch('/data');
+    const temperatureData = await response.json();
+
+    let viewerDiv = document.getElementById("Viewer");
+    viewerDiv.innerHTML = "";
+
+    let buttons = document.createElement("div");
+    buttons.className = "tab flex justify-center space-x-4";
+
+    for (const cameraData of temperatureData) {
+      if(selection ==""){
+        selection = cameraData["name"]
+      }
+      let newTab = document.createElement("div");
+      newTab.id = cameraData["name"];
+      if(selection == cameraData["name"]){
+        newTab.className = "tabcontent bg-white p-6 rounded-lg shadow-md h-3/4 mt-10";
+      }else{
+        newTab.className = "tabcontent hidden bg-white p-6 rounded-lg shadow-md h-3/4 mt-10";
+      }
+
+      let newTabHeader = document.createElement("h3");
+      newTabHeader.className = "text-lg leading-6 font-medium text-gray-900";
+      newTabHeader.innerHTML = cameraData["name"];
+
+      newTab.append(newTabHeader);
+      viewerDiv.append(newTab)
+
+      let newButton = document.createElement("button")
+      newButton.className="tablinks px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+      newButton.onmousedown = function(event) {
+        openTab(event, cameraData["name"]);
+      };      
+      newButton.innerHTML= cameraData["name"]
+      buttons.append(newButton);
+      newTab.append(drawHeatmap(cameraData))  
+      }
+
+    viewerDiv.append(buttons);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function openTab(event, tabName) {
+  console.log(tabName);
+  let tabcontent = document.getElementsByClassName("tabcontent");
+  selection = tabName
+  for (let i = 0; i < tabcontent.length; i++) {
+    if(tabcontent[i].id != selection)
+    {    
+      tabcontent[i].style.display = "none";
+    } else{
+      tabcontent[i].style.display = "block";
+    }
+}}
+
+
+function drawHeatmap(data) {
+      let canvasAndLegend = document.createElement("div") 
+      var squareSize = 20;
+      if(!fixedTemp){
+        minValue = Math.min(...data["frame_data"]);
+        maxValue = Math.max(...data["frame_data"]);  
+      }
+      var colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([minValue, maxValue]);
+      var canvas = document.createElement("canvas")
+      canvas.width = 24*squareSize
+      canvas.height = 32*squareSize
+      canvas.id = 'heatmapCanvas'+data["name"];
+      canvas.style.transform = "scale(-1,1)"
+      var ctx = canvas.getContext('2d');
+      var canvasWidthInSquares = canvas.width / squareSize;
+      var canvasHeightInSquares = canvas.height / squareSize;
+      for (var i = 0; i < canvasWidthInSquares; i++) {
+        for (var j = 0; j < canvasHeightInSquares; j++) {
+          var dataIndex = j+i * canvasHeightInSquares ;
+          var value = data["frame_data"][dataIndex];
+
+          // Farbe basierend auf dem Wert
+          var color = colorScale(value);
+
+          // Quadrat zeichnen
+          ctx.fillStyle = color;
+
+          // Adjust the x and y positions to fill the full width of the canvas
+          ctx.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
+        }
+      }
+      canvasAndLegend.append(canvas)
+
+      let legendname = "legend"+data["name"]
+      var legend = document.createElement("div")
+      legend.id = legendname
+      canvasAndLegend.append(legend)
+
+        var legendCanvas = d3.select(legend)
+          .append("svg")
+          .style("width","400px")
+          .style("height","300px")
+
+        var legendScale = d3.scaleLinear()
+          .domain([minValue, maxValue])
+          .range([240, 0]);
+
+        var legendAxis = d3.axisRight(legendScale);
+
+        legendCanvas.append("g")
+          .attr("transform", "translate(0,0)")
+          .call(legendAxis);
+
+        var colorLegend = legendCanvas.append("g")
+          .attr("transform", "translate(25,0)");
+
+        var colorRange = d3.range(minValue, maxValue + (maxValue - minValue) / 10, (maxValue - minValue) / 10);
+
+        colorLegend.selectAll("rect")
+          .data(colorRange)
+          .enter().append("rect")
+          .attr("height", 20)
+          .attr("width", 30)
+          .attr("x", 0)
+          .attr("y", function(d) { return legendScale(d); })
+          .attr("fill", function(d) { return colorScale(d); });
+
+        // Temperaturwerte auf der Skala anzeigen
+        colorLegend.selectAll("text")
+          .data(colorRange)
+          .enter().append("text")
+          .attr("x", 30)  // Adjust the x position to create space between rect and text
+          .attr("y", function(d) { return legendScale(d) + 15; })
+          .text(function(d) { return d.toFixed(1); });
+
+
+      canvasAndLegend.style.width="fit-content"
+      canvasAndLegend.style.display="flex"
+      canvasAndLegend.style.gap="2em"
+       return canvasAndLegend
+    }
+
+    function setFixedTemp(){
+      fixedTemp=event.target.checked;
+    }
+
+      // updateViewer()
+      // Get the element with id="defaultOpen" and click on it
+      // document.getElementById("Tab1").style.display = "block";
+      setInterval(updateViewer, 500); // Adjust the interval as needed
+</script>
+
+</body>
+</html>

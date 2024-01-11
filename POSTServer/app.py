@@ -32,6 +32,11 @@ def streaming():
     return render_template("streaming.html", temperature_data=temperature_data)
 
 
+@app.route("/stream5K")
+def stream5K():
+    temperature_data,response = data()
+    return render_template("streaming5Kamera.html", temperature_data=temperature_data)
+
 @app.route("/video_feed")
 def video_feed():
     return Response(
