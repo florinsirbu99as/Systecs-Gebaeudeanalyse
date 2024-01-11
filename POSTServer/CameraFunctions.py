@@ -9,6 +9,7 @@ import requests
 
 # file in /home/systecs/.local/lib/python3.11/site-packages/adafruit_mlx90640.py
 
+
 # Function for Raspberry Pi hosted Flask Server
 def get_sensor_data():
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400000)
@@ -17,7 +18,7 @@ def get_sensor_data():
 
     frame = np.zeros((24 * 32,))
 
-    while(True):
+    while True:
         try:
             mlx.getFrame(frame)
             # You can manipulate 'frame' here if needed before returning
